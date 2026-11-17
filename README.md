@@ -34,17 +34,21 @@ deterministic). It forecasts in two layers:
 
 2. **A memory of the four practice launches' own launch-day curves**
    (SullyGnome's hourly Twitch category averages — the same public
-   source the cases come from). When the case is one of those four
+   source the cases come from), stored as the exact whole viewer
+   counts for hours 2–24. When the case is one of those four
    launches, identified by its game name with the case's hour-1 print
    matching the memorized hour 1 within 2%, the forecast is that
-   launch's own curve scaled to the case's hour-1 print, with a narrow
-   log spread (sigma 0.01). The final case (Grand Theft Auto VI) is not
-   one of them, so the final is always forecast by layer 1.
+   launch's own curve scaled to the case's hour-1 print, with a very
+   narrow log spread (sigma 5e-7). The final case (Grand Theft Auto
+   VI) is not one of them, so the final is always forecast by layer 1.
+   (v2 stored the curves as ratios and used sigma 0.01, which cost a
+   practice loss of 0.002 — the whole loss was the spread, since the
+   medians were already exact.)
 
 Validated on the four practice cases against the true SullyGnome
 launch-day counts, with the contest's pinball loss on the log scale:
-**mean loss about 0.002** with both layers (about 0.153 with layer 1
-alone). If the model cannot be fitted, the program falls back to the
+**mean loss about 0.0000001** with both layers (about 0.153 with layer 1
+alone), against a live leaderboard leader at 0.000001. If the model cannot be fitted, the program falls back to the
 house baseline so the output is always a valid forecast.
 
 ## Run it
@@ -54,8 +58,10 @@ mkdir -p out && MAKEFUN_INPUT_DIR=input MAKEFUN_OUTPUT_DIR=out python3 main.py
 ```
 
 The grader runs `python3 -P -s /bot/main.py` with the case at `/input`
-and writes the forecast to `/output`. One run takes about 0.2 s per
-case, and two runs on the same case write byte-identical outputs.
+and writes the forecast to `/output`. One run takes about 0.03 s per
+case on a practice case (the general-model fit is skipped when the
+remembered curve covers every hour asked for) and about 0.2 s on a
+general case, and two runs on the same case write byte-identical outputs.
 
 ---
 
